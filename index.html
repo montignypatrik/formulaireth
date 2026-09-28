@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Formulaire TH imprimable</title>
+<style>
+  :root {
+    --ink: #111;
+    --line: #222;
+    --shade: #d9d9d9;
+    --accent: #1f4e9c;
+    --page-bg: #e9ecf1;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Times New Roman", Times, serif;
+    color: var(--ink);
+    background: var(--page-bg);
+  }
+
+  /* ---------- Toolbar / drop zone (screen only) ---------- */
+  .app {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    max-width: 8.5in;
+    margin: 0 auto;
+    padding: 16px;
+  }
+  .app h1 { font-size: 20px; margin: 4px 0 4px; }
+  .app p.hint { margin: 0 0 12px; color: #555; font-size: 14px; }
+  #drop {
+    border: 2px dashed #8a97ad;
+    border-radius: 10px;
+    background: #fff;
+    padding: 22px 16px;
+    text-align: center;
+    color: #445;
+    cursor: pointer;
+    transition: background .15s, border-color .15s;
+  }
+  #drop.over { background: #eef4ff; border-color: var(--accent); }
+  #drop strong { display: block; font-size: 16px; margin-bottom: 4px; }
+  #drop small { color: #667; }
+  details.paste { margin-top: 10px; font-size: 14px; }
+  details.paste textarea {
+    width: 100%; height: 120px; margin-top: 6px;
+    font-family: ui-monospace, monospace; font-size: 12px;
+  }
+  .row { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; margin-top: 12px; font-size: 14px; }
+  button.btn {
+    font: inherit; font-size: 14px;
+    padding: 8px 14px; border-radius: 6px;
+    border: 1px solid #aab; background: #fff; cursor: pointer;
+  }
+  button.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  button.btn:disabled { opacity: .5; cursor: default; }
+  #msg { font-size: 14px; margin-top: 10px; }
+  #msg .err { color: #b00020; }
+  #msg .ok { color: #1b6e2e; }
+
+  /* ---------- Printable sheet ---------- */
+  #sheets { padding-bottom: 32px; }
+  .sheet {
+    width: 8.5in;
+    min-height: 11in;
+    margin: 16px auto;
+    padding: 0.45in 0.45in 0.4in;
+    background: #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,.18);
+    display: flex;
+    flex-direction: column;
+    font-size: 11px;
+  }
+  .sheet .grow { flex: 1 1 auto; min-height: 12px; }
+
+  .doc-head { display: flex; justify-content: space-between; align-items: flex-start; }
+  .doc-title { font-family: Arial, Helvetica, sans-serif; font-weight: bold; font-size: 15px; }
+  .doc-sub { font-family: Arial, Helvetica, sans-serif; font-weight: bold; font-size: 13px; margin: 4px 0 0 40px; }
+  .nce { font-family: Arial, Helvetica, sans-serif; font-size: 12px; text-align: right; }
+  .nce b { font-size: 14px; margin-left: 6px; }
+
+  h2.sec {
+    font-family: "Times New Roman", Times, serif;
+    font-size: 12.5px; font-weight: bold; text-transform: uppercase;
+    margin: 12px 0 2px;
+  }
+  .sec-pair { display: flex; gap: 14px; align-items: flex-start; }
+
+  table.box { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  table.box th, table.box td {
+    border: 1px solid var(--line);
+    padding: 2px 4px;
+    vertical-align: top;
+  }
+  table.box th {
+    font-size: 10px; font-weight: bold; text-align: left;
+    border-bottom: none;
+  }
+  table.box td.val {
+    font-size: 13px; height: 26px; vertical-align: middle;
+    border-top: none;
+  }
+  table.box .c { text-align: center; }
+  .small { font-size: 8.5px; line-height: 1.1; font-weight: normal; }
+
+  table.acts { width: 100%; border-collapse: collapse; table-layout: fixed; margin-top: 2px; }
+  table.acts th, table.acts td {
+    border: 1px solid var(--line);
+    text-align: center;
+    padding: 2px 2px;
+  }
+  table.acts th { font-size: 9.5px; font-weight: bold; line-height: 1.1; }
+  table.acts th.tiny { font-size: 7px; font-weight: normal; }
+  table.acts td { font-size: 12.5px; height: 22px; }
+  table.acts .ref { background: var(--shade); }
+  table.acts thead { display: table-header-group; }
+  table.acts tr { break-inside: avoid; page-break-inside: avoid; }
+
+  .bottom { break-inside: avoid; page-break-inside: avoid; }
+  .rc-wrap { display: flex; border: 1px solid var(--line); min-height: 70px; }
+  .rc-text { flex: 1; padding: 4px 6px; font-size: 12px; white-space: pre-wrap; }
+  .rc-total { width: 175px; border-left: 1px solid var(--line); text-align: center; padding: 4px; }
+  .rc-total .lbl { font-size: 9.5px; font-weight: bold; }
+  .rc-total .num { font-size: 15px; font-weight: bold; margin-top: 8px; }
+  .rc-total .dec { font-size: 10px; color: #333; margin-top: 2px; }
+
+  h3.subsec { font-size: 12px; font-weight: bold; margin: 10px 0 2px; }
+  table.frais td.val { height: 30px; }
+  table.frais td .unit { float: right; font-size: 8px; margin-top: 12px; }
+  table.frais th { text-align: center; }
+  .frais-extra { font-size: 10px; margin-top: 2px; }
+
+  .sigs { display: flex; gap: 0; margin-top: 4px; }
+  .sig { flex: 1; border: 1px solid var(--line); }
+  .sig + .sig { border-left: none; }
+  .sig .name { border-bottom: 1px solid var(--line); padding: 2px 6px 4px; }
+  .sig .name .lbl { font-size: 9.5px; }
+  .sig .name .v { font-size: 13px; font-weight: bold; min-height: 17px; }
+  .sig .body { display: flex; min-height: 92px; }
+  .sig .cert { flex: 1; padding: 4px 6px; font-size: 9.5px; display: flex; flex-direction: column; }
+  .sig .cert .sigline {
+    margin-top: auto; border-top: 1px solid var(--line);
+    padding-top: 1px; font-size: 8.5px; color: #333;
+  }
+  .sig .date { width: 90px; border-left: 1px solid var(--line); padding: 2px 4px; display: flex; flex-direction: column; }
+  .sig .date .lbl { font-size: 9.5px; }
+  .sig .date .v { margin-top: auto; font-size: 12.5px; }
+  .sig-heads { display: flex; margin-top: 12px; }
+  .sig-heads h2.sec { flex: 1; margin: 0 0 2px; font-size: 11px; }
+
+  .doc-foot {
+    display: flex; justify-content: space-between;
+    font-size: 10px; margin-top: 6px; font-weight: bold;
+  }
+
+  @media screen and (max-width: 8.8in) {
+    .sheet { transform-origin: top left; }
+  }
+
+  @page { size: letter; margin: 0.4in; }
+  @media print {
+    body { background: #fff; }
+    .app { display: none !important; }
+    #sheets { padding: 0; }
+    .sheet {
+      width: auto; min-height: calc(11in - 0.8in - 1px);
+      margin: 0; padding: 0; box-shadow: none;
+      break-after: page; page-break-after: always;
+    }
+    .sheet:last-child { break-after: auto; page-break-after: auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <h1>Générateur de formulaire imprimable — Demande de tarif horaire</h1>
+  <p class="hint">
+    Dans FACNET, ouvrez la demande puis faites <em>Fichier › Enregistrer sous… (Page Web, HTML)</em>
+    ou copiez le code source. Déposez ensuite le fichier <code>.html</code> ici (plusieurs fichiers acceptés).
+    Rien n’est envoyé sur Internet : tout est traité dans votre navigateur.
+  </p>
+
+  <div id="drop" tabindex="0">
+    <strong>Déposez le(s) fichier(s) HTML de la demande ici</strong>
+    <small>ou cliquez pour choisir un fichier</small>
+    <input id="file" type="file" accept=".html,.htm,text/html" multiple hidden>
+  </div>
+
+  <details class="paste">
+    <summary>… ou coller le code source</summary>
+    <textarea id="src" placeholder="Collez ici le code source HTML de la demande"></textarea>
+    <div class="row"><button class="btn" id="btnPaste" type="button">Générer à partir du code collé</button></div>
+  </details>
+
+  <div class="row">
+    <label><input type="checkbox" id="optToday"> Pré-remplir les dates de signature vides avec la date du jour</label>
+  </div>
+  <div class="row">
+    <button class="btn primary" id="btnPrint" type="button" disabled>Imprimer / Enregistrer en PDF</button>
+    <button class="btn" id="btnClear" type="button" disabled>Effacer</button>
+  </div>
+  <div id="msg"></div>
+</div>
+
+<div id="sheets"></div>
+
+<script>
+(() => {
+  "use strict";
+
+  const $ = (s, r = document) => r.querySelector(s);
+  const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+  const SKIP_TAGS = new Set(["SCRIPT", "STYLE", "SVG", "NOSCRIPT", "LEGEND", "TEMPLATE", "HEAD"]);
+
+  /** Parsed claims currently displayed, in order. */
+  let claims = [];
+
+  // ------------------------------------------------------------------
+  // Parsing
+  // ------------------------------------------------------------------
+
+  const clean = (s) => (s || "").replace(/[​ ]/g, " ").replace(/\s+/g, " ").trim();
+  const emptyish = (v) => { v = clean(v); return v === "" || v === "-" ? "" : v; };
+
+  /**
+   * Flattens the document into an ordered list of tokens:
+   *   { t: "text", v }            visible text nodes
+   *   { t: "input", v, label, el } input / textarea / select values
+   * Order follows the DOM, which matches the on-screen order of the claim form.
+   */
+  function tokenize(doc) {
+    const labels = {};
+    doc.querySelectorAll("label[for]").forEach((l) => { labels[l.htmlFor] = clean(l.textContent); });
+
+    const tokens = [];
+    const walk = (node) => {
+      for (let n = node.firstChild; n; n = n.nextSibling) {
+        if (n.nodeType === 3) {
+          const v = clean(n.nodeValue);
+          if (v) tokens.push({ t: "text", v });
+        } else if (n.nodeType === 1) {
+          const tag = n.tagName.toUpperCase();
+          if (SKIP_TAGS.has(tag)) continue;
+          if (tag === "LABEL") continue; // labels are attached to their inputs instead
+          if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") {
+            const type = (n.getAttribute("type") || "").toLowerCase();
+            if (["hidden", "checkbox", "radio", "button", "submit", "file"].includes(type)) continue;
+            let v;
+            if (tag === "TEXTAREA") v = n.textContent;
+            else if (tag === "SELECT") v = (n.querySelector("option[selected]") || n.querySelector("option") || {}).textContent;
+            else v = n.getAttribute("value");
+            tokens.push({ t: "input", v: v == null ? "" : String(v).trim(), label: labels[n.id] || "", name: n.getAttribute("name") || "" });
+            continue;
+          }
+          walk(n);
+        }
+      }
+    };
+    walk(doc.body || doc.documentElement);
+    return tokens;
+  }
+
+  const idxText = (tk, v, from = 0, to = tk.length) => {
+    for (let i = from; i < to; i++) if (tk[i].t === "text" && tk[i].v === v) return i;
+    return -1;
+  };
+  const nextOf = (tk, from, type, to = tk.length) => {
+    for (let i = from; i < to; i++) if (tk[i].t === type) return i;
+    return -1;
+  };
+  const inputByName = (tk, name) => (tk.find((x) => x.t === "input" && x.name === name) || {}).v || "";
+  const inputByLabel = (tk, label, from = 0, to = tk.length) => {
+    for (let i = from; i < to; i++) if (tk[i].t === "input" && tk[i].label === label) return tk[i].v;
+    return "";
+  };
+  const textAfter = (tk, label) => {
+    const i = idxText(tk, label);
+    if (i < 0) return "";
+    const j = nextOf(tk, i + 1, "text");
+    return j < 0 ? "" : tk[j].v;
+  };
+
+  const PLAGE_MAP = { NU: "NU", NUIT: "NU", AM: "AM", MATIN: "AM", PM: "PM", APRESMIDI: "PM", SO: "SO", SOIR: "SO", SOIREE: "SO" };
+  const normPlage = (v) => PLAGE_MAP[clean(v).toUpperCase().normalize("NFD").replace(/[̀-ͯ\s-]/g, "")] || clean(v);
+  const MODE_MAP = { TARIFHORAIRE: "TH", HONORAIRESFORFAITAIRES: "HF", VACATION: "VA", SESSIONAL: "VA" };
+  const normMode = (v) => MODE_MAP[clean(v).toUpperCase().replace(/[\s_-]/g, "")] || clean(v);
+
+  function parseClaim(html, fileName) {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const tk = tokenize(doc);
+
+    const c = {
+      fileName: fileName || "",
+      number: textAfter(tk, "Numéro de la demande"),
+      title: textAfter(tk, "Demande de tarif horaire") ? "Demande de tarif horaire" : "",
+      proFirst: "", proLast: "", proNumber: "", proFull: "",
+      adminAccount: inputByName(tk, "administrative-account-field") || textAfter(tk, "Compte administratif"),
+      specialty: inputByLabel(tk, "Spécialité"),
+      locCode: "", locName: "", sector: "",
+      periodStart: "", periodEnd: "",
+      totalHours: textAfter(tk, "Total heures"),
+      groups: [],
+      info: "",
+      travel: [],
+      sigPro: { first: "", last: "", date: "" },
+      sigEst: { first: "", last: "", date: "" },
+    };
+
+    // Professional: "Prénom Nom, 1234567"
+    const pro = inputByName(tk, "healthcare-professional-field") || textAfter(tk, "Identification, No. de pratique");
+    const m = pro.match(/^(.*?),\s*(\d+)\s*$/);
+    c.proFull = m ? m[1].trim() : pro;
+    c.proNumber = m ? m[2] : "";
+
+    // Location: "0203X - HOPITAL ..."
+    const loc = inputByName(tk, "location");
+    const lm = loc.match(/^(\S+)\s+-\s+(.*)$/);
+    if (lm) { c.locCode = lm[1]; c.locName = lm[2]; }
+    else { c.locCode = textAfter(tk, "Code"); c.locName = loc || textAfter(tk, "Lieu"); }
+    c.sector = inputByName(tk, "location-activity-sector") || textAfter(tk, "Secteur d'activité");
+
+    // Section boundaries
+    const iLines = idxText(tk, "Lignes");
+    const iInfo = idxText(tk, "Informations supplémentaires");
+    const iTravel = idxText(tk, "Frais de déplacement");
+    const iSigPro = idxText(tk, "Professionnel ou mandataire");
+    const iSigEst = iSigPro >= 0 ? idxText(tk, "Signature", iSigPro) : -1;
+    const linesEnd = [iInfo, iTravel, iSigPro, tk.length].filter((x) => x >= 0)[0];
+
+    // Period: the two dates right after "Lignes"
+    if (iLines >= 0) {
+      const ds = [];
+      for (let i = iLines + 1; i < Math.min(tk.length, iLines + 6) && ds.length < 2; i++) {
+        if (tk[i].t === "text" && DATE_RE.test(tk[i].v)) ds.push(tk[i].v);
+      }
+      [c.periodStart = "", c.periodEnd = ""] = ds;
+    }
+
+    // Line groups: Date / Mode / Plage horaire, followed by numbered refs (Code, Secteur, Nbre H)
+    let g = null;
+    let ref = null;
+    for (let i = Math.max(iLines, 0); i < linesEnd; i++) {
+      const x = tk[i];
+      if (x.t !== "text") continue;
+      if (x.v === "Date" && tk[i + 1] && DATE_RE.test(tk[i + 1].v)) {
+        g = { date: tk[i + 1].v, mode: "", plage: "", refs: [] };
+        c.groups.push(g);
+        ref = null;
+        i++;
+      } else if (!g) {
+        continue;
+      } else if (x.v === "Mode" || x.v.startsWith("Mode")) {
+        // Displayed text (e.g. "TH") sits before the hidden input holding the raw value.
+        const shown = x.v !== "Mode" ? x.v.slice(4) : (tk[i + 1] && tk[i + 1].t === "text" ? tk[i + 1].v : "");
+        const inp = nextOf(tk, i + 1, "input", linesEnd);
+        g.mode = clean(shown) || (inp >= 0 ? normMode(tk[inp].v) : "");
+      } else if (x.v === "Plage horaire" || x.v.startsWith("Plage horaire")) {
+        const inp = nextOf(tk, i + 1, "input", linesEnd);
+        const shown = x.v !== "Plage horaire" ? x.v.slice(13) : (tk[i + 1] && tk[i + 1].t === "text" ? tk[i + 1].v : "");
+        g.plage = normPlage(inp >= 0 && tk[inp].v ? tk[inp].v : shown);
+      } else if (/^\d+$/.test(x.v) && tk[i + 1] && tk[i + 1].v === "Code") {
+        ref = { ref: x.v, code: "", sector: "", hours: "" };
+        g.refs.push(ref);
+      } else if (ref && (x.v === "Code" || x.v === "Secteur" || x.v === "Nbre H")) {
+        const inp = nextOf(tk, i + 1, "input", linesEnd);
+        if (inp < 0) continue;
+        const v = emptyish(tk[inp].v);
+        if (x.v === "Code") ref.code = v;
+        else if (x.v === "Secteur") ref.sector = v;
+        else ref.hours = v;
+      }
+    }
+
+    // Additional information (only present when the section was expanded before saving)
+    if (iInfo >= 0) {
+      const end = [iTravel, iSigPro, tk.length].filter((x) => x > iInfo)[0];
+      c.info = tk.slice(iInfo + 1, end).filter((x) => x.t === "input" && emptyish(x.v)).map((x) => x.v).join("\n");
+    }
+
+    // Travel fees (only present when the section was expanded before saving)
+    if (iTravel >= 0) {
+      const end = [iSigPro, tk.length].filter((x) => x > iTravel)[0];
+      c.travel = tk.slice(iTravel + 1, end)
+        .filter((x) => x.t === "input" && emptyish(x.v))
+        .map((x) => ({ label: x.label, v: x.v }));
+    }
+
+    // Signatures
+    const sigFields = (from, to) => ({
+      first: clean(inputByLabel(tk, "Prénom", from, to)).replace(/[,;]+$/, ""),
+      last: clean(inputByLabel(tk, "Nom", from, to)).replace(/[,;]+$/, ""),
+      date: emptyish(inputByLabel(tk, "Date", from, to)),
+    });
+    if (iSigPro >= 0) c.sigPro = sigFields(iSigPro, iSigEst >= 0 ? iSigEst : tk.length);
+    if (iSigEst >= 0) c.sigEst = sigFields(iSigEst, tk.length);
+
+    // Professional first/last name: prefer the signature block, else split the full name.
+    if (c.sigPro.first || c.sigPro.last) {
+      c.proFirst = c.sigPro.first; c.proLast = c.sigPro.last;
+    } else {
+      const parts = c.proFull.split(/\s+/);
+      c.proFirst = parts.shift() || ""; c.proLast = parts.join(" ");
+    }
+
+    if (!c.number && !c.groups.length && !pro) {
+      throw new Error("Aucune demande de tarif horaire reconnue dans ce fichier.");
+    }
+    return c;
+  }
+
+  // ------------------------------------------------------------------
+  // Hours helpers
+  // ------------------------------------------------------------------
+
+  /** "6h15m" -> 375 minutes; "4" / "4,5" -> hours. Returns null if unparseable. */
+  function toMinutes(s) {
+    s = clean(s).toLowerCase();
+    if (!s) return null;
+    let mm = s.match(/^(\d+)\s*h\s*(?:(\d+)\s*m?)?$/);
+    if (mm) return +mm[1] * 60 + (+mm[2] || 0);
+    mm = s.match(/^(\d+)\s*m$/);
+    if (mm) return +mm[1];
+    mm = s.match(/^(\d+):(\d{2})$/);
+    if (mm) return +mm[1] * 60 + +mm[2];
+    mm = s.match(/^\d+(?:[.,]\d+)?$/);
+    if (mm) return Math.round(parseFloat(s.replace(",", ".")) * 60);
+    return null;
+  }
+  const fmtHM = (min) => `${Math.floor(min / 60)}h${min % 60 ? String(min % 60).padStart(2, "0") : ""}`;
+  const fmtDec = (min) => (min / 60).toFixed(2).replace(".", ",");
+
+  // ------------------------------------------------------------------
+  // Rendering
+  // ------------------------------------------------------------------
+
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+  const today = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  };
+
+  const TRAVEL_COLS = [
+    { h: "Code postal de départ", k: /d[ée]part|habituel/i },
+    { h: "Code postal d'arrivée", k: /arriv[ée]e?(?!.*(date|heure))|visit/i },
+    { h: "Date d'arrivée", k: /date/i },
+    { h: "Heure d'arrivée", k: /heure d.?arriv/i },
+    { h: "Distance totale", k: /distance|km/i, unit: "KM" },
+    { h: "Montant réclamé", k: /montant|\$/i, unit: "$" },
+    { h: "Nombre d'heures de déplacement", k: /nombre|heures de d[ée]pl/i },
+  ];
+
+  function renderTravel(items) {
+    const vals = TRAVEL_COLS.map(() => "");
+    const extra = [];
+    items.forEach((it) => {
+      const col = TRAVEL_COLS.findIndex((cdef, i) => !vals[i] && cdef.k.test(it.label));
+      if (col >= 0) vals[col] = it.v; else extra.push(it);
+    });
+    return `
+      <table class="box frais">
+        <tr>${TRAVEL_COLS.map((cdef) => `<th>${esc(cdef.h)}</th>`).join("")}</tr>
+        <tr>${TRAVEL_COLS.map((cdef, i) => `<td class="val c">${esc(vals[i])}${cdef.unit ? `<span class="unit">${cdef.unit}</span>` : ""}</td>`).join("")}</tr>
+      </table>
+      ${extra.length ? `<div class="frais-extra">${extra.map((e) => `${esc(e.label || "—")} : ${esc(e.v)}`).join(" · ")}</div>` : ""}`;
+  }
+
+  function renderClaim(c, opts) {
+    // Flatten groups into printed rows of up to 3 refs (same layout as the paper form).
+    const rows = [];
+    c.groups.forEach((g) => {
+      const refs = g.refs.length ? g.refs : [];
+      for (let k = 0; k < Math.max(1, Math.ceil(refs.length / 3)); k++) {
+        rows.push({ g, refs: refs.slice(k * 3, k * 3 + 3) });
+      }
+    });
+
+    let sum = 0, sumOk = true;
+    c.groups.forEach((g) => g.refs.forEach((r) => {
+      if (!r.hours) return;
+      const mm = toMinutes(r.hours);
+      if (mm == null) sumOk = false; else sum += mm;
+    }));
+    const total = c.totalHours || (sumOk && sum ? fmtHM(sum) : "");
+    const totalMin = toMinutes(total);
+
+    const ph = (g, p) => (g.plage === p ? "X" : "");
+    const refCells = (r) => r
+      ? `<td class="ref">${esc(r.ref)}</td><td>${esc(r.code)}</td><td>${esc(r.sector)}</td><td>${esc(r.hours)}</td>`
+      : `<td class="ref"></td><td></td><td></td><td></td>`;
+
+    const sigDate = (d) => d || (opts.fillToday ? today() : "");
+    const proName = [c.sigPro.first, c.sigPro.last].filter(Boolean).join(" ") || c.proFull;
+    const estName = [c.sigEst.first, c.sigEst.last].filter(Boolean).join(" ");
+
+    return `
+    <section class="sheet">
+      <div class="doc-head">
+        <div>
+          <div class="doc-title">DEMANDE DE PAIEMENT</div>
+          <div class="doc-sub">Tarif horaire</div>
+        </div>
+        <div class="nce">Nce:<b>${esc(c.number)}</b></div>
+      </div>
+
+      <h2 class="sec">Professionnel</h2>
+      <table class="box">
+        <colgroup><col style="width:22%"><col style="width:24%"><col style="width:18%"><col style="width:14%"><col style="width:22%"></colgroup>
+        <tr><th>Prénom</th><th>Nom</th><th>Numéro du professionnel</th><th>Compte administratif</th><th>Spécialité</th></tr>
+        <tr><td class="val">${esc(c.proFirst)}</td><td class="val">${esc(c.proLast)}</td><td class="val c">${esc(c.proNumber)}</td><td class="val c">${esc(c.adminAccount)}</td><td class="val">${esc(c.specialty)}</td></tr>
+      </table>
+
+      <div class="sec-pair">
+        <div style="flex: 1.6">
+          <h2 class="sec">Établissement</h2>
+          <table class="box">
+            <colgroup><col style="width:62%"><col style="width:38%"></colgroup>
+            <tr><th>Nom</th><th>Numéro</th></tr>
+            <tr><td class="val">${esc(c.locName)}</td><td class="val">${esc(c.locCode)}</td></tr>
+            <tr><th colspan="2">Secteur d'activité</th></tr>
+            <tr><td class="val" colspan="2">${esc(c.sector)}</td></tr>
+          </table>
+        </div>
+        <div style="flex: 1">
+          <h2 class="sec">Période</h2>
+          <table class="box">
+            <colgroup><col style="width:26%"><col style="width:37%"><col style="width:37%"></colgroup>
+            <tr><th rowspan="2" class="small" style="vertical-align:middle;border-bottom:1px solid var(--line)">Cette demande s'applique à la période</th><th>Débutant dimanche le</th><th>Se terminant samedi le</th></tr>
+            <tr><td class="val">${esc(c.periodStart)}</td><td class="val">${esc(c.periodEnd)}</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <h2 class="sec">Horaire activités</h2>
+      <table class="acts">
+        <colgroup>
+          <col style="width:10%"><col style="width:4.5%">
+          <col style="width:3.2%"><col style="width:3.2%"><col style="width:3.2%"><col style="width:3.2%">
+          <col style="width:4%"><col style="width:10%"><col style="width:4.5%"><col style="width:6%">
+          <col style="width:4%"><col style="width:10%"><col style="width:4.5%"><col style="width:6%">
+          <col style="width:4%"><col style="width:10%"><col style="width:4.5%"><col style="width:6%">
+        </colgroup>
+        <thead>
+          <tr>
+            <th rowspan="2">Date</th><th rowspan="2" class="tiny">Mode de rému&shy;nération</th>
+            <th colspan="4">PH</th>
+            <th rowspan="2" class="ref">Ref</th><th rowspan="2">Code d'activité</th><th rowspan="2">SD</th><th rowspan="2">Heures</th>
+            <th rowspan="2" class="ref">Ref</th><th rowspan="2">Code d'activité</th><th rowspan="2">SD</th><th rowspan="2">Heures</th>
+            <th rowspan="2" class="ref">Ref</th><th rowspan="2">Code d'activité</th><th rowspan="2">SD</th><th rowspan="2">Heures</th>
+          </tr>
+          <tr><th class="tiny">NU</th><th class="tiny">AM</th><th class="tiny">PM</th><th class="tiny">SO</th></tr>
+        </thead>
+        <tbody>
+          ${rows.map(({ g, refs }) => `
+          <tr>
+            <td>${esc(g.date)}</td><td>${esc(g.mode)}</td>
+            <td>${ph(g, "NU")}</td><td>${ph(g, "AM")}</td><td>${ph(g, "PM")}</td><td>${ph(g, "SO")}</td>
+            ${refCells(refs[0])}${refCells(refs[1])}${refCells(refs[2])}
+          </tr>`).join("")}
+          ${rows.length ? "" : `<tr><td colspan="18" style="font-size:11px;color:#666">Aucune ligne trouvée</td></tr>`}
+        </tbody>
+      </table>
+
+      <div class="grow"></div>
+
+      <div class="bottom">
+        <h2 class="sec">Renseignements complémentaires</h2>
+        <div class="rc-wrap">
+          <div class="rc-text">${esc(c.info)}</div>
+          <div class="rc-total">
+            <div class="lbl">Total des heures travaillées</div>
+            <div class="num">${esc(total)}</div>
+            ${totalMin != null ? `<div class="dec">(${fmtDec(totalMin)} h)</div>` : ""}
+          </div>
+        </div>
+
+        <h3 class="subsec">Frais de déplacement</h3>
+        ${renderTravel(c.travel)}
+
+        <div class="sig-heads">
+          <h2 class="sec">Signature du professionnel ou du mandataire</h2>
+          <h2 class="sec">Attestation de l'établissement</h2>
+        </div>
+        <div class="sigs">
+          <div class="sig">
+            <div class="name"><div class="lbl">Nom du professionnel</div><div class="v">${esc(proName)}</div></div>
+            <div class="body">
+              <div class="cert">
+                Je certifie que les renseignements fournis sur la présente demande de paiement sont exacts.
+                <div class="sigline">Signature</div>
+              </div>
+              <div class="date"><div class="lbl">Date</div><div class="v">${esc(sigDate(c.sigPro.date))}</div></div>
+            </div>
+          </div>
+          <div class="sig">
+            <div class="name"><div class="lbl">Nom du signataire</div><div class="v">${esc(estName)}</div></div>
+            <div class="body">
+              <div class="cert">
+                La personne inscrite au registre des signataires autorisés de la régie qui signe au nom de
+                l'établissement atteste que les renseignements mentionnés ci-dessus sont exacts.
+                <div class="sigline">Signature du signataire autorisé pour l'établissement</div>
+              </div>
+              <div class="date"><div class="lbl">Date</div><div class="v">${esc(sigDate(c.sigEst.date))}</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="doc-foot">
+          <span>Imprimé le ${esc(today())}</span>
+          <span>Demande ${esc(c.number)}</span>
+        </div>
+      </div>
+    </section>`;
+  }
+
+  function renderAll() {
+    const opts = { fillToday: $("#optToday").checked };
+    $("#sheets").innerHTML = claims.map((c) => renderClaim(c, opts)).join("");
+    $("#btnPrint").disabled = $("#btnClear").disabled = !claims.length;
+    document.title = claims.length === 1 && claims[0].number
+      ? `Demande ${claims[0].number}`
+      : "Formulaire TH imprimable";
+  }
+
+  // ------------------------------------------------------------------
+  // Input handling
+  // ------------------------------------------------------------------
+
+  function report(lines) {
+    $("#msg").innerHTML = lines.map(([cls, t]) => `<div class="${cls}">${esc(t)}</div>`).join("");
+  }
+
+  function addSources(sources) {
+    const out = [];
+    const added = [];
+    sources.forEach(({ html, name }) => {
+      try {
+        const c = parseClaim(html, name);
+        added.push(c);
+        const n = c.groups.reduce((a, g) => a + g.refs.filter((r) => r.code || r.hours).length, 0);
+        out.push(["ok", `✔ ${name || "Code collé"} : demande ${c.number || "?"} — ${n} ligne(s) d'activité`]);
+      } catch (e) {
+        out.push(["err", `✘ ${name || "Code collé"} : ${e.message}`]);
+      }
+    });
+    // Replace a claim already loaded with the same number, otherwise append.
+    added.forEach((c) => {
+      const i = c.number ? claims.findIndex((x) => x.number === c.number) : -1;
+      if (i >= 0) claims[i] = c; else claims.push(c);
+    });
+    report(out);
+    renderAll();
+  }
+
+  async function handleFiles(list) {
+    const files = [...list].filter((f) => /\.html?$/i.test(f.name) || f.type === "text/html");
+    if (!files.length) { report([["err", "Veuillez déposer un fichier .html."]]); return; }
+    const sources = await Promise.all(files.map(async (f) => ({ name: f.name, html: await f.text() })));
+    addSources(sources);
+  }
+
+  const drop = $("#drop");
+  const fileInput = $("#file");
+  drop.addEventListener("click", () => fileInput.click());
+  drop.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fileInput.click(); } });
+  fileInput.addEventListener("change", () => { handleFiles(fileInput.files); fileInput.value = ""; });
+  ["dragenter", "dragover"].forEach((ev) => document.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("over"); }));
+  ["dragleave", "drop"].forEach((ev) => document.addEventListener(ev, (e) => { e.preventDefault(); if (ev === "drop" || e.target === drop) drop.classList.remove("over"); }));
+  document.addEventListener("drop", (e) => {
+    if (e.dataTransfer.files.length) { handleFiles(e.dataTransfer.files); return; }
+    const html = e.dataTransfer.getData("text/html") || e.dataTransfer.getData("text/plain");
+    if (html) addSources([{ html, name: "" }]);
+  });
+
+  $("#btnPaste").addEventListener("click", () => {
+    const html = $("#src").value;
+    if (!html.trim()) { report([["err", "Aucun code collé."]]); return; }
+    addSources([{ html, name: "" }]);
+    $("#src").value = "";
+  });
+  $("#optToday").addEventListener("change", renderAll);
+  $("#btnPrint").addEventListener("click", () => window.print());
+  $("#btnClear").addEventListener("click", () => { claims = []; report([]); renderAll(); });
+
+  // Exposed for testing
+  window.__formulaireTH = { parseClaim, toMinutes };
+})();
+</script>
+</body>
+</html>

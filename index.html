@@ -158,14 +158,18 @@
     .sheet { transform-origin: top left; }
   }
 
-  @page { size: letter; margin: 0.4in; }
+  /* Zero page margins leave the browser no room for its own header/footer
+     (URL, date, page title), so they are not printed. The form's white space
+     comes from the sheet padding instead, repeated on each printed page. */
+  @page { size: letter; margin: 0; }
   @media print {
     body { background: #fff; }
     .app { display: none !important; }
     #sheets { padding: 0; }
     .sheet {
-      width: auto; min-height: calc(11in - 0.8in - 1px);
-      margin: 0; padding: 0; box-shadow: none;
+      width: 8.5in; min-height: calc(11in - 2px);
+      margin: 0; padding: 0.4in; box-shadow: none;
+      -webkit-box-decoration-break: clone; box-decoration-break: clone;
       break-after: page; page-break-after: always;
     }
     .sheet:last-child { break-after: auto; page-break-after: auto; }

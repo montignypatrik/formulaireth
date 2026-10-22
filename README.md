@@ -21,7 +21,7 @@ Tout est traité localement dans le navigateur ; aucune donnée n'est envoyée.
 ## Données reprises
 
 - Numéro de la demande (Nce) → *Numéro de contrôle externe*
-- Professionnel : prénom, nom, numéro, compte administratif (→ *Nº du groupe*), spécialité (→ *C.S.*)
+- Professionnel : prénom, nom, numéro, compte administratif (→ *Nº du groupe*)
 - Établissement (nom, numéro) et période (dimanche–samedi, en année / mois / jour)
 - Lignes d'activité : quantième (jour du mois), mode, plage horaire (nuit/AM/PM/soir), code d'activité,
   secteur de dispensation, heures

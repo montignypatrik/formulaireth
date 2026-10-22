@@ -1,7 +1,8 @@
 # Formulaire TH imprimable
 
 Page HTML statique qui transforme une **demande de tarif horaire** FACNET (facturation.net)
-en formulaire papier « Demande de paiement — Tarif horaire » prêt à signer.
+en formulaire papier prêt à signer, reproduisant la mise en page du formulaire RAMQ **1215**
+« Demande de paiement — Tarif horaire, honoraires forfaitaires et vacation » (voir `1215.pdf`).
 
 ## Utilisation
 
@@ -13,13 +14,17 @@ en formulaire papier « Demande de paiement — Tarif horaire » prêt à signer
    ou votre imprimante.
 
 Plusieurs demandes peuvent être chargées en même temps : chacune est imprimée sur sa propre page.
+Comme sur le 1215, une feuille contient 15 lignes (réf. 1 à 45) ; au-delà, la demande continue sur
+une feuille supplémentaire et le total, les frais et les signatures figurent sur la dernière.
 Tout est traité localement dans le navigateur ; aucune donnée n'est envoyée.
 
 ## Données reprises
 
-- Numéro de la demande (Nce), professionnel (prénom, nom, numéro, compte administratif, spécialité)
-- Établissement (nom, numéro, secteur d'activité) et période
-- Lignes d'activité : date, mode, plage horaire (NU/AM/PM/SO), réf., code d'activité, secteur (SD), heures
+- Numéro de la demande (Nce) → *Numéro de contrôle externe*
+- Professionnel : prénom, nom, numéro, compte administratif (→ *Nº du groupe*), spécialité (→ *C.S.*)
+- Établissement (nom, numéro) et période (dimanche–samedi, en année / mois / jour)
+- Lignes d'activité : quantième (jour du mois), mode, plage horaire (nuit/AM/PM/soir), code d'activité,
+  secteur de dispensation, heures
 - Total des heures
 - Renseignements complémentaires et frais de déplacement (si la section était ouverte au moment
   de l'enregistrement de la page)

@@ -8,7 +8,7 @@
   :root {
     --ink: #111;
     --line: #222;
-    --shade: #d9d9d9;
+    --shade: #e2e2e2;
     --accent: #1f4e9c;
     --page-bg: #e9ecf1;
   }
@@ -59,100 +59,104 @@
   #msg .err { color: #b00020; }
   #msg .ok { color: #1b6e2e; }
 
-  /* ---------- Printable sheet ---------- */
+  /* ---------- Printable sheet (mirrors RAMQ form 1215) ---------- */
   #sheets { padding-bottom: 32px; }
   .sheet {
     width: 8.5in;
-    min-height: 11in;
+    height: 11in;
     margin: 16px auto;
-    padding: 0.45in 0.45in 0.4in;
+    padding: 0.32in 0.35in 0.28in;
     background: #fff;
     box-shadow: 0 2px 10px rgba(0,0,0,.18);
     display: flex;
     flex-direction: column;
-    font-size: 11px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 9px;
+    overflow: hidden;
   }
-  .sheet .grow { flex: 1 1 auto; min-height: 12px; }
+  .sheet .grow { flex: 1 1 auto; min-height: 4px; }
 
-  .doc-head { display: flex; justify-content: space-between; align-items: flex-start; }
-  .doc-title { font-family: Arial, Helvetica, sans-serif; font-weight: bold; font-size: 15px; }
-  .doc-sub { font-family: Arial, Helvetica, sans-serif; font-weight: bold; font-size: 13px; margin: 4px 0 0 40px; }
-  .nce { font-family: Arial, Helvetica, sans-serif; font-size: 12px; text-align: right; }
-  .nce b { font-size: 14px; margin-left: 6px; }
+  /* Generic boxes and fields */
+  .bx { border: 1.3px solid var(--line); border-radius: 7px; display: flex; overflow: hidden; }
+  .f { flex: 1 1 0; min-width: 0; padding: 1px 3px 2px; display: flex; flex-direction: column; }
+  .f + .f { border-left: 1px solid var(--line); }
+  .lb { font-size: 6.2px; text-transform: uppercase; line-height: 1.15; }
+  .v { font-family: "Courier New", Courier, monospace; font-weight: bold; font-size: 12.5px;
+       margin-top: auto; min-height: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ctr { text-align: center; }
+  .shade { background: var(--shade); }
 
+  /* Section titles: bold caps with a rule running to the right, like the paper form */
   h2.sec {
-    font-family: "Times New Roman", Times, serif;
-    font-size: 12.5px; font-weight: bold; text-transform: uppercase;
-    margin: 12px 0 2px;
+    display: flex; align-items: flex-end; gap: 4px;
+    font-size: 11px; font-weight: bold; text-transform: uppercase;
+    margin: 5px 0 2px; line-height: 1;
   }
-  .sec-pair { display: flex; gap: 14px; align-items: flex-start; }
+  h2.sec::after { content: ""; flex: 1; border-top: 1.3px solid var(--line); margin-bottom: 1px; }
 
-  table.box { width: 100%; border-collapse: collapse; table-layout: fixed; }
-  table.box th, table.box td {
-    border: 1px solid var(--line);
-    padding: 2px 4px;
-    vertical-align: top;
-  }
-  table.box th {
-    font-size: 10px; font-weight: bold; text-align: left;
-    border-bottom: none;
-  }
-  table.box td.val {
-    font-size: 13px; height: 26px; vertical-align: middle;
-    border-top: none;
-  }
-  table.box .c { text-align: center; }
-  .small { font-size: 8.5px; line-height: 1.1; font-weight: normal; }
+  /* Année / mois / jour sub-cells */
+  .ymd { display: flex; margin-top: auto; }
+  .ymd > div { flex: 1; text-align: center; }
+  .ymd > div + div { border-left: 1px solid #999; }
+  .ymd .lb { font-size: 5.8px; }
+  .ymd .v { font-size: 11.5px; text-align: center; }
 
-  table.acts { width: 100%; border-collapse: collapse; table-layout: fixed; margin-top: 2px; }
-  table.acts th, table.acts td {
-    border: 1px solid var(--line);
-    text-align: center;
-    padding: 2px 2px;
-  }
-  table.acts th { font-size: 9.5px; font-weight: bold; line-height: 1.1; }
-  table.acts th.tiny { font-size: 7px; font-weight: normal; }
-  table.acts td { font-size: 12.5px; height: 22px; }
-  table.acts .ref { background: var(--shade); }
-  table.acts thead { display: table-header-group; }
-  table.acts tr { break-inside: avoid; page-break-inside: avoid; }
+  /* Header */
+  .doc-head { display: grid; grid-template-columns: 1.7in 1fr 1.7in; align-items: start; }
+  .doc-head .bx { height: 0.42in; }
+  .doc-title { text-align: center; font-weight: bold; font-size: 17px; line-height: 1.05; }
+  .doc-title small { display: block; font-size: 13.5px; }
+  .regie { text-align: right; font-style: italic; font-weight: bold; font-size: 12px; line-height: 1.1; }
 
-  .bottom { break-inside: avoid; page-break-inside: avoid; }
-  .rc-wrap { display: flex; border: 1px solid var(--line); min-height: 70px; }
-  .rc-text { flex: 1; padding: 4px 6px; font-size: 12px; white-space: pre-wrap; }
-  .rc-total { width: 175px; border-left: 1px solid var(--line); text-align: center; padding: 4px; }
-  .rc-total .lbl { font-size: 9.5px; font-weight: bold; }
-  .rc-total .num { font-size: 15px; font-weight: bold; margin-top: 8px; }
-  .rc-total .dec { font-size: 10px; color: #333; margin-top: 2px; }
+  .row2 { display: flex; gap: 8px; align-items: flex-end; }
+  .row2 > * { min-width: 0; }
 
-  h3.subsec { font-size: 12px; font-weight: bold; margin: 10px 0 2px; }
-  table.frais td.val { height: 30px; }
-  table.frais td .unit { float: right; font-size: 8px; margin-top: 12px; }
-  table.frais th { text-align: center; }
-  .frais-extra { font-size: 10px; margin-top: 2px; }
+  /* Activities grid */
+  .acts-box { border: 1.3px solid var(--line); border-radius: 7px; overflow: hidden; }
+  table.acts { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  table.acts .qt { border-right: 3px double var(--line); }
+  table.acts th, table.acts td { border: 1px solid var(--line); text-align: center; padding: 0 1px; }
+  table.acts tr > :first-child { border-left: none; }
+  table.acts tr > :last-child { border-right: none; }
+  table.acts thead tr:first-child > * { border-top: none; }
+  table.acts tbody tr:last-child > * { border-bottom: none; }
+  table.acts th { font-size: 6.6px; font-weight: normal; text-transform: uppercase; line-height: 1.1; height: 13px; }
+  table.acts th.big { font-size: 7.6px; }
+  table.acts td { height: 0.3in; font-family: "Courier New", Courier, monospace; font-weight: bold; font-size: 12px; }
+  table.acts td.ref { font-family: Arial, Helvetica, sans-serif; font-weight: normal; font-size: 9px;
+                      background: var(--shade); vertical-align: top; text-align: left; padding: 3px 2px 0; }
+  table.acts th.ref { background: var(--shade); font-size: 5.8px; }
+  table.acts td.ph { font-size: 11px; }
 
-  .sigs { display: flex; gap: 0; margin-top: 4px; }
-  .sig { flex: 1; border: 1px solid var(--line); }
-  .sig + .sig { border-left: none; }
-  .sig .name { border-bottom: 1px solid var(--line); padding: 2px 6px 4px; }
-  .sig .name .lbl { font-size: 9.5px; }
-  .sig .name .v { font-size: 13px; font-weight: bold; min-height: 17px; }
-  .sig .body { display: flex; min-height: 92px; }
-  .sig .cert { flex: 1; padding: 4px 6px; font-size: 9.5px; display: flex; flex-direction: column; }
-  .sig .cert .sigline {
-    margin-top: auto; border-top: 1px solid var(--line);
-    padding-top: 1px; font-size: 8.5px; color: #333;
-  }
-  .sig .date { width: 90px; border-left: 1px solid var(--line); padding: 2px 4px; display: flex; flex-direction: column; }
-  .sig .date .lbl { font-size: 9.5px; }
-  .sig .date .v { margin-top: auto; font-size: 12.5px; }
-  .sig-heads { display: flex; margin-top: 12px; }
-  .sig-heads h2.sec { flex: 1; margin: 0 0 2px; font-size: 11px; }
+  .total { display: flex; justify-content: flex-end; margin-top: -1.3px; }
+  .total .bx { width: 2.45in; border-top-left-radius: 0; border-top-right-radius: 0; }
+  .total .lb { font-size: 7.5px; font-weight: bold; padding: 4px 6px; flex: 1; }
+  .total .v { width: 1.1in; flex: none; text-align: center; border-left: 1px solid var(--line);
+              padding: 6px 2px 0; font-size: 13.5px; }
+  .total .dec { display: block; font-size: 8.5px; font-family: Arial, Helvetica, sans-serif; font-weight: normal; }
 
-  .doc-foot {
-    display: flex; justify-content: space-between;
-    font-size: 10px; margin-top: 6px; font-weight: bold;
-  }
+  .rc { min-height: 0.72in; padding: 3px 6px; font-family: "Courier New", Courier, monospace;
+        font-weight: bold; font-size: 11.5px; white-space: pre-wrap; display: block; }
+  .frais .f { height: 0.42in; }
+  .unit { font-size: 8px; font-weight: bold; font-family: Arial, Helvetica, sans-serif; }
+  .ramq { width: 1.3in; height: 0.4in; border-radius: 7px; border: 1.3px solid var(--line);
+          background: repeating-linear-gradient(135deg, #fff 0 2px, #bbb 2px 3px); }
+  .ramq span { background: #fff; font-size: 6px; padding: 0 2px; margin: 2px; display: inline-block; }
+
+  .sigs { display: flex; gap: 0.18in; }
+  .sigs > div { flex: 1; min-width: 0; }
+  .sig { flex-direction: column; }
+  .sig .names { display: flex; border-bottom: 1px solid var(--line); }
+  .sig .names .f { height: 0.36in; }
+  .sig .body { display: flex; }
+  .sig .cert { flex: 1; font-size: 6.4px; text-transform: uppercase; padding: 2px 3px; height: 0.52in; line-height: 1.2; }
+  .sig .date { width: 1.3in; flex: none; border-left: 1px solid var(--line); background: var(--shade); padding: 1px 3px; display: flex; flex-direction: column; }
+
+  .doc-foot { display: flex; align-items: flex-end; gap: 12px; margin-top: 5px; }
+  .doc-foot .code { font-size: 9px; font-weight: bold; white-space: nowrap; }
+  .doc-foot .code i { font-weight: normal; font-size: 7.5px; margin-left: 6px; }
+  .doc-foot .note { flex: 1; text-align: center; font-weight: bold; font-size: 9px; line-height: 1.25; }
+  .doc-foot .pg { font-size: 7.5px; white-space: nowrap; color: #333; }
 
   @media screen and (max-width: 8.8in) {
     .sheet { transform-origin: top left; }
@@ -167,9 +171,8 @@
     .app { display: none !important; }
     #sheets { padding: 0; }
     .sheet {
-      width: 8.5in; min-height: calc(11in - 2px);
-      margin: 0; padding: 0.4in; box-shadow: none;
-      -webkit-box-decoration-break: clone; box-decoration-break: clone;
+      height: calc(11in - 2px);
+      margin: 0; box-shadow: none;
       break-after: page; page-break-after: always;
     }
     .sheet:last-child { break-after: auto; page-break-after: auto; }
@@ -445,30 +448,37 @@
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   };
 
-  const TRAVEL_COLS = [
-    { h: "Code postal de départ", k: /d[ée]part|habituel/i },
-    { h: "Code postal d'arrivée", k: /arriv[ée]e?(?!.*(date|heure))|visit/i },
-    { h: "Date d'arrivée", k: /date/i },
-    { h: "Heure d'arrivée", k: /heure d.?arriv/i },
-    { h: "Distance totale", k: /distance|km/i, unit: "KM" },
-    { h: "Montant réclamé", k: /montant|\$/i, unit: "$" },
-    { h: "Nombre d'heures de déplacement", k: /nombre|heures de d[ée]pl/i },
+  const TRAVEL_FIELDS = [
+    ["depart", /d[ée]part|habituel/i],
+    ["arrivee", /arriv[ée]e?(?!.*(date|heure))|visit/i],
+    ["date", /date/i],
+    ["heure", /heure d.?arriv/i],
+    ["km", /distance|km/i],
+    ["montant", /montant|\$/i],
+    ["heures", /nombre|heures de d[ée]pl/i],
   ];
 
-  function renderTravel(items) {
-    const vals = TRAVEL_COLS.map(() => "");
-    const extra = [];
+  /** Maps FACNET travel inputs onto the 1215 fields; unmatched ones are returned in `extra`. */
+  function mapTravel(items) {
+    const out = { extra: [] };
     items.forEach((it) => {
-      const col = TRAVEL_COLS.findIndex((cdef, i) => !vals[i] && cdef.k.test(it.label));
-      if (col >= 0) vals[col] = it.v; else extra.push(it);
+      const f = TRAVEL_FIELDS.find(([k, re]) => !(k in out) && re.test(it.label));
+      if (f) out[f[0]] = it.v; else out.extra.push(it);
     });
-    return `
-      <table class="box frais">
-        <tr>${TRAVEL_COLS.map((cdef) => `<th>${esc(cdef.h)}</th>`).join("")}</tr>
-        <tr>${TRAVEL_COLS.map((cdef, i) => `<td class="val c">${esc(vals[i])}${cdef.unit ? `<span class="unit">${cdef.unit}</span>` : ""}</td>`).join("")}</tr>
-      </table>
-      ${extra.length ? `<div class="frais-extra">${extra.map((e) => `${esc(e.label || "—")} : ${esc(e.v)}`).join(" · ")}</div>` : ""}`;
+    return out;
   }
+
+  /** "2026-03-08" -> ["2026", "03", "08"]; anything else -> ["", "", ""]. */
+  const ymdParts = (d) => (DATE_RE.test(d || "") ? d.split("-") : ["", "", ""]);
+  const ymd = (d) => {
+    const [y, m, j] = ymdParts(d);
+    return `<div class="ymd">${[["Année", y], ["Mois", m], ["Jour", j]]
+      .map(([l, v]) => `<div><div class="lb">${l}</div><div class="v">${esc(v)}</div></div>`).join("")}</div>`;
+  };
+  const fld = (label, value, cls = "", style = "") =>
+    `<div class="f ${cls}"${style ? ` style="${style}"` : ""}><div class="lb">${label}</div><div class="v">${esc(value)}</div></div>`;
+
+  const ROWS_PER_SHEET = 15; // 45 refs per paper form
 
   function renderClaim(c, opts) {
     // Flatten groups into printed rows of up to 3 refs (same layout as the paper form).
@@ -489,133 +499,136 @@
     const total = c.totalHours || (sumOk && sum ? fmtHM(sum) : "");
     const totalMin = toMinutes(total);
 
-    const ph = (g, p) => (g.plage === p ? "X" : "");
-    const refCells = (r) => r
-      ? `<td class="ref">${esc(r.ref)}</td><td>${esc(r.code)}</td><td>${esc(r.sector)}</td><td>${esc(r.hours)}</td>`
-      : `<td class="ref"></td><td></td><td></td><td></td>`;
-
     const sigDate = (d) => d || (opts.fillToday ? today() : "");
-    const proName = [c.sigPro.first, c.sigPro.last].filter(Boolean).join(" ") || c.proFull;
-    const estName = [c.sigEst.first, c.sigEst.last].filter(Boolean).join(" ");
+    const travel = mapTravel(c.travel);
 
-    return `
+    // More than 45 refs continue on additional sheets; the summary blocks go on the last one.
+    const pages = [];
+    for (let p = 0; p === 0 || p * ROWS_PER_SHEET < rows.length; p++) pages.push(rows.slice(p * ROWS_PER_SHEET, (p + 1) * ROWS_PER_SHEET));
+
+    return pages.map((pageRows, p) => {
+      const last = p === pages.length - 1;
+      const body = [];
+      for (let r = 0; r < ROWS_PER_SHEET; r++) {
+        const row = pageRows[r];
+        const g = row && row.g;
+        const ph = (code) => `<td class="ph">${g && g.plage === code ? "X" : ""}</td>`;
+        const cells = [0, 1, 2].map((k) => {
+          const ref = row && row.refs[k];
+          return `<td class="ref">${r * 3 + k + 1}</td><td>${esc(ref && ref.code)}</td><td>${esc(ref && ref.sector)}</td><td>${esc(ref && ref.hours)}</td>`;
+        }).join("");
+        body.push(`<tr><td class="qt">${esc(g ? ymdParts(g.date)[2] : "")}</td><td>${esc(g && g.mode)}</td>${ph("NU")}${ph("AM")}${ph("PM")}${ph("SO")}${cells}</tr>`);
+      }
+      const refHead = `<th rowspan="2" class="ref">Réf.</th><th rowspan="2" class="big">Code<br>d'activité</th><th rowspan="2">Secteur<br>disp.</th><th rowspan="2" class="big">Heures<br>travaillées</th>`;
+
+      return `
     <section class="sheet">
       <div class="doc-head">
-        <div>
-          <div class="doc-title">DEMANDE DE PAIEMENT</div>
-          <div class="doc-sub">Tarif horaire</div>
-        </div>
-        <div class="nce">Nce:<b>${esc(c.number)}</b></div>
+        <div class="bx">${fld("Numéro de contrôle externe", c.number)}</div>
+        <div class="doc-title">DEMANDE DE PAIEMENT<small>Tarif horaire, honoraires forfaitaires et vacation</small></div>
+        <div class="regie">Régie de<br>l'assurance maladie<br>du Québec</div>
       </div>
 
-      <h2 class="sec">Professionnel</h2>
-      <table class="box">
-        <colgroup><col style="width:22%"><col style="width:24%"><col style="width:18%"><col style="width:14%"><col style="width:22%"></colgroup>
-        <tr><th>Prénom</th><th>Nom</th><th>Numéro du professionnel</th><th>Compte administratif</th><th>Spécialité</th></tr>
-        <tr><td class="val">${esc(c.proFirst)}</td><td class="val">${esc(c.proLast)}</td><td class="val c">${esc(c.proNumber)}</td><td class="val c">${esc(c.adminAccount)}</td><td class="val">${esc(c.specialty)}</td></tr>
-      </table>
+      <div class="row2">
+        <div style="flex:1">
+          <h2 class="sec">Professionnel</h2>
+          <div class="bx" style="height:.44in">
+            ${fld("Prénom", c.proFirst, "", "flex:2.6")}${fld("Nom", c.proLast, "", "flex:2.6")}
+            ${fld("Nº du professionnel", c.proNumber, "ctr", "flex:1.15")}${fld("Nº du groupe", c.adminAccount, "ctr", "flex:.85")}
+          </div>
+        </div>
+        <div class="bx" style="width:.5in;height:.44in">${fld("C.S.", c.specialty)}</div>
+        <div class="bx" style="width:.95in;height:.44in">${fld("Nombre de documents annexés", "")}</div>
+      </div>
 
-      <div class="sec-pair">
-        <div style="flex: 1.6">
+      <div class="row2">
+        <div style="flex:1.45">
           <h2 class="sec">Établissement</h2>
-          <table class="box">
-            <colgroup><col style="width:62%"><col style="width:38%"></colgroup>
-            <tr><th>Nom</th><th>Numéro</th></tr>
-            <tr><td class="val">${esc(c.locName)}</td><td class="val">${esc(c.locCode)}</td></tr>
-            <tr><th colspan="2">Secteur d'activité</th></tr>
-            <tr><td class="val" colspan="2">${esc(c.sector)}</td></tr>
-          </table>
+          <div class="bx" style="height:.5in">${fld("Nom", c.locName, "", "flex:2.6")}${fld("Numéro", c.locCode, "", "flex:1")}</div>
         </div>
-        <div style="flex: 1">
+        <div style="flex:1">
           <h2 class="sec">Période</h2>
-          <table class="box">
-            <colgroup><col style="width:26%"><col style="width:37%"><col style="width:37%"></colgroup>
-            <tr><th rowspan="2" class="small" style="vertical-align:middle;border-bottom:1px solid var(--line)">Cette demande s'applique à la période</th><th>Débutant dimanche le</th><th>Se terminant samedi le</th></tr>
-            <tr><td class="val">${esc(c.periodStart)}</td><td class="val">${esc(c.periodEnd)}</td></tr>
-          </table>
+          <div class="bx" style="height:.5in">
+            <div class="f" style="flex:.62;justify-content:center"><div class="lb" style="font-size:7px">Cette demande s'applique à la semaine</div></div>
+            <div class="f"><div class="lb ctr">Débutant le dimanche</div>${ymd(c.periodStart)}</div>
+            <div class="f"><div class="lb ctr">Se terminant le samedi</div>${ymd(c.periodEnd)}</div>
+          </div>
         </div>
       </div>
 
-      <h2 class="sec">Horaire activités</h2>
-      <table class="acts">
-        <colgroup>
-          <col style="width:10%"><col style="width:4.5%">
-          <col style="width:3.2%"><col style="width:3.2%"><col style="width:3.2%"><col style="width:3.2%">
-          <col style="width:4%"><col style="width:10%"><col style="width:4.5%"><col style="width:6%">
-          <col style="width:4%"><col style="width:10%"><col style="width:4.5%"><col style="width:6%">
-          <col style="width:4%"><col style="width:10%"><col style="width:4.5%"><col style="width:6%">
-        </colgroup>
-        <thead>
-          <tr>
-            <th rowspan="2">Date</th><th rowspan="2" class="tiny">Mode de rému&shy;nération</th>
-            <th colspan="4">PH</th>
-            <th rowspan="2" class="ref">Ref</th><th rowspan="2">Code d'activité</th><th rowspan="2">SD</th><th rowspan="2">Heures</th>
-            <th rowspan="2" class="ref">Ref</th><th rowspan="2">Code d'activité</th><th rowspan="2">SD</th><th rowspan="2">Heures</th>
-            <th rowspan="2" class="ref">Ref</th><th rowspan="2">Code d'activité</th><th rowspan="2">SD</th><th rowspan="2">Heures</th>
-          </tr>
-          <tr><th class="tiny">NU</th><th class="tiny">AM</th><th class="tiny">PM</th><th class="tiny">SO</th></tr>
-        </thead>
-        <tbody>
-          ${rows.map(({ g, refs }) => `
-          <tr>
-            <td>${esc(g.date)}</td><td>${esc(g.mode)}</td>
-            <td>${ph(g, "NU")}</td><td>${ph(g, "AM")}</td><td>${ph(g, "PM")}</td><td>${ph(g, "SO")}</td>
-            ${refCells(refs[0])}${refCells(refs[1])}${refCells(refs[2])}
-          </tr>`).join("")}
-          ${rows.length ? "" : `<tr><td colspan="18" style="font-size:11px;color:#666">Aucune ligne trouvée</td></tr>`}
-        </tbody>
-      </table>
+      <h2 class="sec">Activités${pages.length > 1 ? ` <span style="font-weight:normal;font-size:9px">(feuille ${p + 1} de ${pages.length})</span>` : ""}</h2>
+      <div class="acts-box">
+        <table class="acts">
+          <colgroup>
+            <col style="width:5.6%"><col style="width:5.2%">
+            <col style="width:2.3%"><col style="width:2.3%"><col style="width:2.3%"><col style="width:2.3%">
+            ${'<col style="width:2.6%"><col style="width:12.1%"><col style="width:4.6%"><col style="width:7.7%">'.repeat(3)}
+          </colgroup>
+          <thead>
+            <tr>
+              <th rowspan="2" class="qt big">Quan&shy;tième</th><th rowspan="2" style="font-size:5.4px">Mode de rému&shy;nération</th>
+              <th colspan="4" style="font-size:6px">Plage horaire<br>(cocher)</th>
+              ${refHead}${refHead}${refHead}
+            </tr>
+            <tr><th style="font-size:5px">Nuit</th><th style="font-size:5px">AM</th><th style="font-size:5px">PM</th><th style="font-size:5px">Soir</th></tr>
+          </thead>
+          <tbody>${body.join("")}</tbody>
+        </table>
+      </div>
+      <div class="total"><div class="bx">
+        <div class="lb">Total<br>des heures<br>travaillées</div>
+        <div class="v">${last ? esc(total) : ""}${last && totalMin != null ? `<span class="dec">(${fmtDec(totalMin)} h)</span>` : ""}</div>
+      </div></div>
+
+      <h2 class="sec" style="margin-top:-4px">Renseignements complémentaires</h2>
+      <div class="bx rc">${last ? esc([c.info, ...travel.extra.map((e) => `${e.label || "—"} : ${e.v}`)].filter(Boolean).join("\n")) : ""}</div>
+
+      <h2 class="sec">Frais de déplacement</h2>
+      <div class="bx frais">
+        ${fld("Code postal de départ (lieu de travail habituel)", last ? travel.depart : "", "", "flex:1.75")}
+        ${fld("Code postal d'arrivée (établissement visité)", last ? travel.arrivee : "", "", "flex:1.75")}
+        <div class="f" style="flex:1.05"><div class="lb">Date d'arrivée</div>${ymd(last ? travel.date : "")}</div>
+        ${fld("Heure d'arrivée", last ? travel.heure : "")}
+        <div class="f"><div class="lb">Distance totale</div><div class="v">${esc(last ? travel.km : "")} <span class="unit" style="float:right">KM</span></div></div>
+        ${fld("Montant demandé", last ? travel.montant : "")}
+      </div>
+
+      <div class="row2" style="align-items:flex-end">
+        <div style="width:2.3in">
+          <h2 class="sec">Heures de déplacement</h2>
+          <div class="bx" style="height:.4in;align-items:center">
+            <div class="f" style="flex-direction:row;align-items:center;gap:8px"><span style="font-size:9px">NOMBRE</span><span class="v" style="margin:0">${esc(last ? travel.heures : "")}</span></div>
+          </div>
+        </div>
+        <div class="ramq" style="margin-left:.6in"><span>À L'USAGE DE LA RAMQ</span></div>
+      </div>
 
       <div class="grow"></div>
 
-      <div class="bottom">
-        <h2 class="sec">Renseignements complémentaires</h2>
-        <div class="rc-wrap">
-          <div class="rc-text">${esc(c.info)}</div>
-          <div class="rc-total">
-            <div class="lbl">Total des heures travaillées</div>
-            <div class="num">${esc(total)}</div>
-            ${totalMin != null ? `<div class="dec">(${fmtDec(totalMin)} h)</div>` : ""}
-          </div>
-        </div>
-
-        <h3 class="subsec">Frais de déplacement</h3>
-        ${renderTravel(c.travel)}
-
-        <div class="sig-heads">
-          <h2 class="sec">Signature du professionnel ou du mandataire</h2>
-          <h2 class="sec">Attestation de l'établissement</h2>
-        </div>
-        <div class="sigs">
-          <div class="sig">
-            <div class="name"><div class="lbl">Nom du professionnel</div><div class="v">${esc(proName)}</div></div>
+      <div class="sigs">
+        ${[
+          ["Signature du professionnel ou du mandataire", c.sigPro, "Je certifie que les renseignements fournis sur la présente demande de paiement sont exacts."],
+          ["Attestation de l'établissement", c.sigEst, "La personne inscrite au registre des signataires autorisés de la RAMQ qui signe au nom de l'établissement atteste que les renseignements mentionnés ci-dessus sont exacts."],
+        ].map(([title, sg, cert]) => `
+        <div>
+          <h2 class="sec">${title}</h2>
+          <div class="bx sig">
+            <div class="names">${fld("Prénom en lettres moulées", sg.first)}${fld("Nom en lettres moulées", sg.last)}</div>
             <div class="body">
-              <div class="cert">
-                Je certifie que les renseignements fournis sur la présente demande de paiement sont exacts.
-                <div class="sigline">Signature</div>
-              </div>
-              <div class="date"><div class="lbl">Date</div><div class="v">${esc(sigDate(c.sigPro.date))}</div></div>
+              <div class="cert">${cert}</div>
+              <div class="date"><div class="lb">Date</div>${ymd(sigDate(sg.date))}</div>
             </div>
           </div>
-          <div class="sig">
-            <div class="name"><div class="lbl">Nom du signataire</div><div class="v">${esc(estName)}</div></div>
-            <div class="body">
-              <div class="cert">
-                La personne inscrite au registre des signataires autorisés de la régie qui signe au nom de
-                l'établissement atteste que les renseignements mentionnés ci-dessus sont exacts.
-                <div class="sigline">Signature du signataire autorisé pour l'établissement</div>
-              </div>
-              <div class="date"><div class="lbl">Date</div><div class="v">${esc(sigDate(c.sigEst.date))}</div></div>
-            </div>
-          </div>
-        </div>
+        </div>`).join("")}
+      </div>
 
-        <div class="doc-foot">
-          <span>Imprimé le ${esc(today())}</span>
-          <span>Demande ${esc(c.number)}</span>
-        </div>
+      <div class="doc-foot">
+        <div class="code">1215<i>Nce ${esc(c.number)}</i></div>
+        <div class="note">LE FORMULAIRE DOIT COMPORTER LES DEUX SIGNATURES. LE MÉDECIN OU LE MANDATAIRE DOIT EN REMETTRE<br>UNE COPIE À L'ÉTABLISSEMENT ET CONSERVER L'ORIGINAL PENDANT CINQ ANS. NE PAS TRANSMETTRE À LA RAMQ.</div>
+        <div class="pg">${pages.length > 1 ? `${p + 1}/${pages.length}` : ""}</div>
       </div>
     </section>`;
+    }).join("");
   }
 
   function renderAll() {
@@ -688,7 +701,7 @@
   $("#btnClear").addEventListener("click", () => { claims = []; report([]); renderAll(); });
 
   // Exposed for testing
-  window.__formulaireTH = { parseClaim, toMinutes };
+  window.__formulaireTH = { parseClaim, renderClaim, toMinutes };
 })();
 </script>
 </body>
